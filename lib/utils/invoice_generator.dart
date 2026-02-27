@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pg_bag_invoice/models/invoice_data.dart';
@@ -35,7 +37,9 @@ class InvoiceGenerator {
         ),
       );
 
-      return pdf.save();
+      final bytes = await pdf.save();
+      await _saveInvoiceLocally(invoiceData, bytes);
+      return bytes;
     } catch (e, s) {
       debugPrint('Error generating PDF: $e');
       debugPrint('Stack trace: $s');
@@ -43,11 +47,42 @@ class InvoiceGenerator {
     }
   }
 
+  static Future<void> _saveInvoiceLocally(InvoiceData invoiceData, Uint8List bytes) async {
+    try {
+      final directory = await getApplicationDocumentsThemeDirectory();
+      final folder = Directory('${directory.path}/invoices');
+      if (!await folder.exists()) {
+        await folder.create(recursive: true);
+      }
+
+      String customerName = invoiceData.customerName.isEmpty ? 'Customer' : invoiceData.customerName;
+      String baseName = '$customerName quotation invoice';
+      String fileName = '$baseName.pdf';
+      File file = File('${folder.path}/$fileName');
+
+      int counter = 1;
+      while (await file.exists()) {
+        fileName = '$baseName ($counter).pdf';
+        file = File('${folder.path}/$fileName');
+        counter++;
+      }
+
+      await file.writeAsBytes(bytes);
+      debugPrint('Invoice saved to: ${file.path}');
+    } catch (e) {
+      debugPrint('Error saving invoice: $e');
+    }
+  }
+
+  static Future<Directory> getApplicationDocumentsThemeDirectory() async {
+    return await getApplicationDocumentsDirectory();
+  }
+
   static pw.Widget _buildHeader() {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.center,
       children: [
-        pw.Text('PG Industries', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+        pw.Text('Polynest PVT LTD', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 10),
         pw.UrlLink(
           destination: 'https://goo.gl/maps/76xWBzumW7g7f2GaA?g_st=aw',
@@ -58,7 +93,7 @@ class InvoiceGenerator {
           ),
         ),
         pw.SizedBox(height: 5),
-        pw.Text('pgindustries2022@gmail.com | 7780781224'),
+        pw.Text('polynesthyd@gmail.com | 7780781224'),
         pw.Divider(thickness: 2, height: 30),
       ],
     );
@@ -78,7 +113,7 @@ class InvoiceGenerator {
         pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.end,
           children: [
-            pw.Text('Quotation #: ${DateTime.now().millisecondsSinceEpoch}'),
+            pw.Text('Quotation #: ${invoiceData.quotationNumber}'),
             pw.Text('Date: ${DateTime.now().toLocal().toString().split(' ')[0]}'),
           ],
         ),
@@ -95,9 +130,8 @@ class InvoiceGenerator {
         _buildSpecRow('Width:', '${invoiceData.width.toStringAsFixed(2)} inches'),
         _buildSpecRow('Length:', '${invoiceData.length.toStringAsFixed(2)} inches'),
         _buildSpecRow('Grams:', '${invoiceData.grams.toStringAsFixed(2)} g'),
-        _buildSpecRow('Yarn:', '${invoiceData.yarn.toStringAsFixed(2)} g'),
         pw.Divider(height: 20),
-        _buildSpecRow('Total Bag Weight:', '${invoiceData.totalBagWeight.toStringAsFixed(2)} g', isBold: true),
+        _buildSpecRow('Total Bag Weight:', '${invoiceData.totalBagWeight.round()} g', isBold: true),
       ],
     );
   }
@@ -126,8 +160,7 @@ class InvoiceGenerator {
           mainAxisAlignment: pw.MainAxisAlignment.end,
           children: [
             pw.Text('Cost: ', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold)),
-            pw.Text('Rs ${invoiceData.finalBagCost.toStringAsFixed(2)}', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.green700)),
-            pw.Text(' / Bag', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold)),
+            pw.Text('Rs ${invoiceData.finalBagCost.toStringAsFixed(2)} / Bag', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.green700)),
           ],
         ),
         pw.SizedBox(height: 50),

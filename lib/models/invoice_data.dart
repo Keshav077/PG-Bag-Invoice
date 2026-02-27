@@ -1,6 +1,7 @@
 class InvoiceData {
   // Customer
   String customerName = '';
+  String quotationNumber = '';
 
   // Section 1
   double grams = 0;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pg_bag_invoice/models/invoice_data.dart';
 import 'package:pg_bag_invoice/screens/section_two_screen.dart';
+import 'package:pg_bag_invoice/screens/history_screen.dart';
 import 'package:pg_bag_invoice/widgets/custom_button.dart';
 import 'package:pg_bag_invoice/widgets/custom_text_field.dart';
 import 'package:pg_bag_invoice/widgets/display_field.dart';
@@ -18,6 +19,7 @@ class _SectionOneScreenState extends State<SectionOneScreen> {
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _customerNameController;
+  late final TextEditingController _quotationNumberController;
   late final TextEditingController _gramsController;
   late final TextEditingController _widthController;
   late final TextEditingController _lengthController;
@@ -27,6 +29,7 @@ class _SectionOneScreenState extends State<SectionOneScreen> {
   void initState() {
     super.initState();
     _customerNameController = TextEditingController(text: widget.invoiceData.customerName);
+    _quotationNumberController = TextEditingController(text: widget.invoiceData.quotationNumber);
     _gramsController = TextEditingController(text: widget.invoiceData.grams.toString());
     _widthController = TextEditingController(text: widget.invoiceData.width.toString());
     _lengthController = TextEditingController(text: widget.invoiceData.length.toString());
@@ -45,6 +48,7 @@ class _SectionOneScreenState extends State<SectionOneScreen> {
     _lengthController.removeListener(_updateCalculations);
     _yarnController.removeListener(_updateCalculations);
     _customerNameController.dispose();
+    _quotationNumberController.dispose();
     _gramsController.dispose();
     _widthController.dispose();
     _lengthController.dispose();
@@ -64,6 +68,7 @@ class _SectionOneScreenState extends State<SectionOneScreen> {
   void _clear() {
     setState(() {
       _customerNameController.clear();
+      _quotationNumberController.clear();
       _gramsController.text = '0';
       _widthController.text = '0';
       _lengthController.text = '0';
@@ -75,6 +80,7 @@ class _SectionOneScreenState extends State<SectionOneScreen> {
   void _next() {
     if (_formKey.currentState!.validate()) {
       widget.invoiceData.customerName = _customerNameController.text;
+      widget.invoiceData.quotationNumber = _quotationNumberController.text;
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -88,14 +94,52 @@ class _SectionOneScreenState extends State<SectionOneScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dimensions'),
+        title: const Text('Polynest Invoice'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.clear_all),
             onPressed: _clear,
             tooltip: 'Clear All Fields',
           )
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.green,
+              ),
+              child: Text(
+                'Polynest Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.add_chart),
+              title: const Text('Generate Invoice'),
+              onTap: () {
+                Navigator.pop(context); // Close drawer
+                _clear();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('Generated Invoices'),
+              onTap: () {
+                Navigator.pop(context); // Close drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HistoryScreen()),
+                );
+              },
+            ),
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -111,6 +155,25 @@ class _SectionOneScreenState extends State<SectionOneScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Customer Name',
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter customer name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _quotationNumberController,
+                      decoration: const InputDecoration(
+                        labelText: 'Quotation Number',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter quotation number';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 8),
                     CustomTextField(

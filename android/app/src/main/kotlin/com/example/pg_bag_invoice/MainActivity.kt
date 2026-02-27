@@ -1,4 +1,4 @@
-package com.example.pg_bag_invoice
+package com.polynest.invoice
 
 import io.flutter.embedding.android.FlutterActivity
 
