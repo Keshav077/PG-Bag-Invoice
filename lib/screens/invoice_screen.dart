@@ -10,12 +10,15 @@ class InvoiceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fileName = '${invoiceData.customerName} quotation invoice';
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Invoice'),
       ),
       body: PdfPreview(
         build: (format) => InvoiceGenerator.generate(invoiceData, format),
+        pdfFileName: fileName,
       ),
     );
   }
