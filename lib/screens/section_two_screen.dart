@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
 import 'package:pg_bag_invoice/models/invoice_data.dart';
 import 'package:pg_bag_invoice/screens/invoice_screen.dart';
+import 'package:pg_bag_invoice/utils/invoice_generator.dart';
 import 'package:pg_bag_invoice/widgets/custom_button.dart';
 import 'package:pg_bag_invoice/widgets/custom_text_field.dart';
 import 'package:pg_bag_invoice/widgets/display_field.dart';
@@ -114,14 +116,23 @@ class _SectionTwoScreenState extends State<SectionTwoScreen> {
     });
   }
 
-  void _generateInvoice() {
+  Future<void> _generateInvoice() async {
     if (_formKey.currentState!.validate()) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => InvoiceScreen(invoiceData: widget.invoiceData),
-        ),
-      );
+      // 1. Generate the PDF bytes once
+      final pdfBytes = await InvoiceGenerator.generate(widget.invoiceData, PdfPageFormat.a4);
+      
+      // 2. Save it to internal storage once
+      await InvoiceGenerator.saveInvoice(widget.invoiceData, pdfBytes);
+
+      // 3. Navigate to preview screen
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => InvoiceScreen(invoiceData: widget.invoiceData),
+          ),
+        );
+      }
     }
   }
 

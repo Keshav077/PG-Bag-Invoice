@@ -8,6 +8,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pg_bag_invoice/models/invoice_data.dart';
 
 class InvoiceGenerator {
+  // Pure generation - used by PdfPreview
   static Future<Uint8List> generate(InvoiceData invoiceData, PdfPageFormat format) async {
     try {
       final pdf = pw.Document();
@@ -37,9 +38,7 @@ class InvoiceGenerator {
         ),
       );
 
-      final bytes = await pdf.save();
-      await _saveInvoiceLocally(invoiceData, bytes);
-      return bytes;
+      return pdf.save();
     } catch (e, s) {
       debugPrint('Error generating PDF: $e');
       debugPrint('Stack trace: $s');
@@ -47,9 +46,10 @@ class InvoiceGenerator {
     }
   }
 
-  static Future<void> _saveInvoiceLocally(InvoiceData invoiceData, Uint8List bytes) async {
+  // Explicit save - called only once when moving to invoice screen
+  static Future<void> saveInvoice(InvoiceData invoiceData, Uint8List bytes) async {
     try {
-      final directory = await getApplicationDocumentsThemeDirectory();
+      final directory = await getApplicationDocumentsDirectory();
       final folder = Directory('${directory.path}/invoices');
       if (!await folder.exists()) {
         await folder.create(recursive: true);
@@ -72,10 +72,6 @@ class InvoiceGenerator {
     } catch (e) {
       debugPrint('Error saving invoice: $e');
     }
-  }
-
-  static Future<Directory> getApplicationDocumentsThemeDirectory() async {
-    return await getApplicationDocumentsDirectory();
   }
 
   static pw.Widget _buildHeader() {

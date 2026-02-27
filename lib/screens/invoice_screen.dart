@@ -10,7 +10,7 @@ class InvoiceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fileName = '${invoiceData.customerName} quotation invoice';
+    final fileName = '${invoiceData.customerName} quotation invoice.pdf';
     
     return Scaffold(
       appBar: AppBar(
