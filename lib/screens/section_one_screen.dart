@@ -94,10 +94,13 @@ class _SectionOneScreenState extends State<SectionOneScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Polynest Invoice'),
+        title: const Text(
+          'Polynest Invoice',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.clear_all),
+            icon: const Icon(Icons.refresh),
             onPressed: _clear,
             tooltip: 'Clear All Fields',
           )
@@ -116,6 +119,7 @@ class _SectionOneScreenState extends State<SectionOneScreen> {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -195,12 +199,16 @@ class _SectionOneScreenState extends State<SectionOneScreen> {
                       controller: _yarnController,
                       labelText: 'Yarn (g)',
                     ),
-                    const SizedBox(height: 16),
-                    const Divider(),
-                    DisplayField(label: 'Total Bag Weight', value: widget.invoiceData.totalBagWeight, unit: 'g'),
                   ],
                 ),
               ),
+              const Divider(),
+              DisplayField(
+                label: 'Total Bag Weight',
+                value: widget.invoiceData.totalBagWeight,
+                unit: 'g',
+              ),
+              const SizedBox(height: 16),
               CustomButton(text: 'Next', onPressed: _next),
             ],
           ),

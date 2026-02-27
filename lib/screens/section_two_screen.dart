@@ -140,7 +140,10 @@ class _SectionTwoScreenState extends State<SectionTwoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cost'),
+        title: const Text(
+          'Cost',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -228,6 +231,11 @@ class _SectionTwoScreenState extends State<SectionTwoScreen> {
                 ),
               ),
               const Divider(),
+              DisplayField(
+                label: 'Margin Amount',
+                value: widget.invoiceData.marginAmount,
+                unit: 'Rs',
+              ),
               DisplayField(
                 label: 'Final Bag Cost',
                 value: widget.invoiceData.finalBagCost,

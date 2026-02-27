@@ -123,8 +123,8 @@ class InvoiceGenerator {
       children: [
         pw.Text('Dimensions', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 15),
-        _buildSpecRow('Width:', '${invoiceData.width.toStringAsFixed(2)} inches'),
-        _buildSpecRow('Length:', '${invoiceData.length.toStringAsFixed(2)} inches'),
+        _buildSpecRow('Width:', '${invoiceData.width.toStringAsFixed(2)} in.'),
+        _buildSpecRow('Length:', '${invoiceData.length.toStringAsFixed(2)} in.'),
         _buildSpecRow('Grams:', '${invoiceData.grams.toStringAsFixed(2)} g'),
         pw.Divider(height: 20),
         _buildSpecRow('Total Bag Weight:', '${invoiceData.totalBagWeight.round()} g', isBold: true),
